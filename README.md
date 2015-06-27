@@ -1,0 +1,2 @@
+# pico-directorybased
+Picoでカレントディレクトリの記事を表示する変数を追加するプラグイン
