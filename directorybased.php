@@ -3,22 +3,6 @@
  * Pico Directorty Based Plugin
  * Picoに、ディレクトリベースでサブディレクトリの記事だけをリストアップする、dir_pages変数を追加するプラグイン
  *
- * コンフィグオプション
- * ・$config['dir_based']['pagination']['enabled'] ページネーション処理を行うかどうか
- * ・$config['dir_based']['pagination']['oncurdir'] カレントディレクトリのページネーションにおいて、1ページに表示する記事数
- *
- * 追加するTwig変数
- * ・dir_pages カレントディレクトリのページリスト
- * ・dir_paginate ページネーション処理に関する情報(配列)
- *   ・enabled ページネーションが有効ならtrue
- *   ・hasprev 前ページがあればtrue
- *   ・prevurl 前ページのURL(httpから)
- *   ・hasnext 次ページがあればtrue
- *   ・nexturl 次ページのURL(httpから)
- *   ・pageindex 現在表示しているページのインデックス
- *   ・pagemax カレントディレクトリのページ数
- * ・pathinfo 現在のページのディレクトリ名をひとつひとつ分割した配列
- *
  * @author TakamiChie
  * @link http://onpu-tamago.net/
  * @license http://opensource.org/licenses/MIT
