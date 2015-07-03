@@ -128,7 +128,7 @@ class DirectoryBased {
       $page_index = $this->pagination_index;
       $page_max = ceil(count($curdir) / $oncurdir);
       // ディレクトリコンテンツ切り出し
-      $curdir = array_slice($curdir, $first, $last);
+      $curdir = array_slice($curdir, $first, $oncurdir);
     }
     
     // カレントディレクトリとサブディレクトリの結びつけ
