@@ -25,13 +25,14 @@ class DirectoryBased {
     $this->content_dir = $settings['content_dir'];
     $this->config = array(
       'pagination' => array(
-        'enabled'  => false,
-        'oncurdir' => 5,
+        'enabled'   => false,
+        'oncurdir'  => 5,
+        'scansubdir'=> true,
       ),
     );
     
     if( isset($settings['dir_based']) ) {
-      $this->config = $settings['dir_based'] + $this->config;
+      $this->config['pagination'] = $settings['dir_based']['pagination'] + $this->config['pagination'];
     }
   }
 	
