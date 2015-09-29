@@ -91,17 +91,19 @@ class DirectoryBased {
               array_push($curdir, $page);
             break;
           case 1:
-            // サブディレクトリ
-            if($p_page["name"] == ""){
-              // サブディレクトリのindexファイルであれば、カレントディレクトリリストに追加
-              $dirmap[$d_name] = count($curdir);
-              array_push($curdir, $page);
-            }else{
-              // そうでなければ、サブディレクトリとして追加
-              if(!array_key_exists($d_name, $subdir)){
-                $subdir[$d_name] = array();
+            if($this->config['pagination']['scansubdir']){
+              // サブディレクトリ
+              if($p_page["name"] == ""){
+                // サブディレクトリのindexファイルであれば、カレントディレクトリリストに追加
+                $dirmap[$d_name] = count($curdir);
+                array_push($curdir, $page);
+              }else{
+                // そうでなければ、サブディレクトリとして追加
+                if(!array_key_exists($d_name, $subdir)){
+                  $subdir[$d_name] = array();
+                }
+                array_push($subdir[$d_name], $page);
               }
-              array_push($subdir[$d_name], $page);
             }
             break;
           default:
