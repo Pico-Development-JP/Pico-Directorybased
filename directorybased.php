@@ -6,9 +6,11 @@
  * @author TakamiChie
  * @link http://onpu-tamago.net/
  * @license http://opensource.org/licenses/MIT
- * @version 1.0
+ * @version 1.1
  */
-class DirectoryBased {
+class DirectoryBased extends AbstractPicoPlugin {
+
+  protected $enabled = false;
 
   private $content_dir;
 
@@ -20,9 +22,10 @@ class DirectoryBased {
   
   private $pagination_index;
   
-  public function config_loaded(&$settings) {
-    $this->base_url = $settings['base_url'];
-    $this->content_dir = $settings['content_dir'];
+  public function onConfigLoaded(array &$config)
+  {
+    $this->base_url = $config['base_url'];
+    $this->content_dir = $config['content_dir'];
     $this->config = array(
       'pagination' => array(
         'enabled'   => false,
@@ -30,14 +33,13 @@ class DirectoryBased {
         'scansubdir'=> true,
       ),
     );
-    
-    if( isset($settings['dir_based']) ) {
-      $this->config['pagination'] = $settings['dir_based']['pagination'] + $this->config['pagination'];
+    if( isset($config['dir_based']) ) {
+      $this->config['pagination'] = $config['dir_based']['pagination'] + $this->config['pagination'];
     }
   }
 	
-	public function request_url(&$url)
-	{
+  public function onRequestUrl(&$url)
+  {
 	  if($this->config['pagination']['enabled']) {
   		// ページネーション対応
   		$checkurl = $url;
@@ -54,9 +56,10 @@ class DirectoryBased {
 		  $this->current_url = $this->base_url . "/" . $url;
     }
 	}
-  	
-	public function before_render(&$twig_vars, &$twig, &$template) {
-		$pages = $twig_vars["pages"];
+
+  public function onPageRendering(Twig_Environment &$twig, array &$twigVariables, &$templateName)
+  {
+		$pages = $twigVariables["pages"];
 		$curdir = array();
 		$subdir = array();
 		$dirmap = array();
@@ -67,7 +70,7 @@ class DirectoryBased {
 		$page_hasnext = false;
 		$page_nexturl = "";
 		$pagination_enabled = false;
-		$current_page = $twig_vars["current_page"];
+		$current_page = $twigVariables["current_page"];
 
     $p_current = $this->getpagepath($current_page);
     foreach ($pages as $page) {
@@ -84,7 +87,10 @@ class DirectoryBased {
           $match = ($match and ($pcp[$i] == $ppp[$i]));
         }
         if($match){
+          var_dump($p_page);
           $d_name = end($p_page["path"]);
+          var_dump($d_name);
+          var_dump($pathc);
           switch($pathc){
           case 0:
             // 同じディレクトリであれば、カレントディレクトリリストに追加
@@ -96,7 +102,7 @@ class DirectoryBased {
               // サブディレクトリ
               if($p_page["name"] == ""){
                 // サブディレクトリのindexファイルであれば、カレントディレクトリリストに追加
-                $dirmap[$d_name] = count($curdir);
+                  $dirmap[$d_name] = count($curdir);
                 array_push($curdir, $page);
               }else{
                 // そうでなければ、サブディレクトリとして追加
@@ -140,9 +146,8 @@ class DirectoryBased {
         $curdir[$v]["subpages"] = $subdir[$k];
       }
     }
-    
-    $twig_vars["dir_pages"] = $curdir;
-    $twig_vars["dir_paginate"] = array(
+    $twigVariables["dir_pages"] = $curdir;
+    $twigVariables["dir_paginate"] = array(
       "enabled" => $pagination_enabled,
       "hasprev" => $page_hasprev,
       "prevurl" => $page_prevurl,
@@ -151,7 +156,7 @@ class DirectoryBased {
       "pageindex" => $page_index,
       "pagemax" => $page_max
     );
-    $twig_vars["pathinfo"] = $p_current["path"];
+    $twigVariables["pathinfo"] = $p_current["path"];
 	}
 
   /*
@@ -165,8 +170,8 @@ class DirectoryBased {
 	  $path = substr($page["url"], strlen($this->base_url));
 	  $p = explode("/", $path);
 	  $pathes = array();
-	  array_shift($p); // 一つ目の要素は必ず/
 	  $pathes['name'] = array_pop($p); // 最後の項目はファイル名
+    if($pathes['name'] == 'index') $pathes['name'] = "";
 	  $pathes['path'] = $p;
 	  $pathes['fullpath'] = $path;
 	  return $pathes;
