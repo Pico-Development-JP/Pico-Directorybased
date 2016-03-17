@@ -87,10 +87,7 @@ class DirectoryBased extends AbstractPicoPlugin {
           $match = ($match and ($pcp[$i] == $ppp[$i]));
         }
         if($match){
-          var_dump($p_page);
           $d_name = end($p_page["path"]);
-          var_dump($d_name);
-          var_dump($pathc);
           switch($pathc){
           case 0:
             // 同じディレクトリであれば、カレントディレクトリリストに追加
