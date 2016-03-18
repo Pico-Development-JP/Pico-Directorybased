@@ -181,13 +181,14 @@ class DirectoryBased extends AbstractPicoPlugin {
    *
    */
   private function url_exists($url)
-  {
+  { 
     $file = "";
+    $ext = $this->getConfig('content_ext');
 		if($url) $file = $this->content_dir . $url;
 		else $file = $this->content_dir .'index';
 
-		if(is_dir($file)) $file = $this->content_dir . $url .'/index'. CONTENT_EXT;
-		else $file .= CONTENT_EXT;
+		if(is_dir($file)) $file = $this->content_dir . $url .'/index'. $ext;
+		else $file .= $ext;
 		
 		return file_exists($file);
   }
