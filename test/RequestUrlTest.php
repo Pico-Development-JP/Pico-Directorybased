@@ -23,6 +23,24 @@ class DirectoryBasedRUTest extends DirectoryBasedTestBase {
   /**
    * 以下の状態で、カレントURL及びページインデックスの値を確認する
    *
+   * URL:indexで終わる
+   * カレントURL:indexをカットした値
+   * ページインデックス:1
+   */
+  public function testOnRU_URLIsIndex() {
+    Closure::bind(function() {
+      $test = $this->getTest(true);
+      $testurl = "testurl/has/no/paginate/";
+      $url = "${testurl}index";
+      $test->onRequestUrl($url);
+      $this->assertRegExp("|${testurl}$|", $test->current_url);
+      $this->assertEquals(1, $test->pagination_index);
+    }, $this, 'DirectoryBased')->__invoke();
+  }
+
+  /**
+   * 以下の状態で、カレントURL及びページインデックスの値を確認する
+   *
    * URL:ページネーションインデックスを含む。インデックス1
    * カレントURL:インデックスが削除された値
    * ページインデックス:1
