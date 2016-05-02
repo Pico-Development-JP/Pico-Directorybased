@@ -150,27 +150,26 @@ class DirectoryBased extends AbstractPicoPlugin {
     if($this->config['pagination']['enabled'] && $oncurdir > 0 && count($curdir) > $oncurdir) {
       $result = array();
       // 変数計算
-  		$result["pagination_enabled"] = true;
-      $first = ($this->pagination_index - 1) * $oncurdir;
-      $last = $first + $oncurdir;
-      $result["page_hasprev"] = $this->pagination_index > 1;
-      if($result["page_hasprev"]) { 
-        $result["page_prevurl"] = $this->current_url . "/" 
-          . ($this->pagination_index - 1);
-      } else {
-        $result["page_prevurl"] = "";
-      }
-      $result["page_hasnext"] = count($curdir) > $last;
-      if($result["page_hasnext"]) { 
-        $result["page_nexturl"] = $this->current_url . "/" 
-          . ($this->pagination_index + 1);
-      } else {
-        $result["page_nexturl"] = "";
-      }
       $result["page_index"] = $this->pagination_index;
       $result["page_max"] = ceil(count($curdir) / $oncurdir);
-      // ディレクトリコンテンツ切り出し
-      $curdir = array_slice($curdir, $first, $oncurdir);
+      if(0 < $result["page_index"] && $result["page_index"] <= $result["page_max"])
+      {
+        $result["pagination_enabled"] = true;
+        $first = ($this->pagination_index - 1) * $oncurdir;
+        $last = $first + $oncurdir;
+        $curl = $this->current_url;
+        if(substr($curl, -1) == "/") $curl = substr($curl, 0, -1);
+        $result["page_hasprev"] = $this->pagination_index > 1;
+        $result["page_prevurl"] = $result["page_hasprev"] ?
+          "${curl}/" . ($this->pagination_index - 1) : null;
+        $result["page_hasnext"] = count($curdir) > $last;
+        $result["page_nexturl"] = $result["page_hasnext"] ?
+          "${curl}/" . ($this->pagination_index + 1) : null;
+        // ディレクトリコンテンツ切り出し
+        $curdir = array_slice($curdir, $first, $oncurdir);
+      } else {
+        $curdir = array();
+      }
     }
     return $result;
   }
