@@ -12,10 +12,6 @@ class DirectoryBased extends AbstractPicoPlugin {
 
   protected $enabled = false;
 
-  private $content_dir;
-
-  private $base_url;
-  
   private $current_url;
   
   private $config;
@@ -24,8 +20,6 @@ class DirectoryBased extends AbstractPicoPlugin {
   
   public function onConfigLoaded(array &$config)
   {
-    $this->base_url = $config['base_url'];
-    $this->content_dir = $config['content_dir'];
     $this->config = array(
       'pagination' => array(
         'enabled'   => false,
@@ -53,7 +47,7 @@ class DirectoryBased extends AbstractPicoPlugin {
   		}else{
     		$this->pagination_index = 1;
   		}
-		  $this->current_url = $this->base_url . "/" . $url;
+		  $this->current_url = $this->getBaseUrl() . "/" . $url;
     }
 	}
 
@@ -164,7 +158,7 @@ class DirectoryBased extends AbstractPicoPlugin {
    */
   private function getpagepath($page)
   {
-	  $path = substr($page["url"], strlen($this->base_url));
+	  $path = substr($page["url"], strlen($this->getBaseUrl()));
 	  $p = explode("/", $path);
 	  $pathes = array();
 	  $pathes['name'] = array_pop($p); // 最後の項目はファイル名
@@ -183,11 +177,12 @@ class DirectoryBased extends AbstractPicoPlugin {
   private function url_exists($url)
   { 
     $file = "";
+    $cdir = $this->getConfig('content_dir');
     $ext = $this->getConfig('content_ext');
-		if($url) $file = $this->content_dir . $url;
-		else $file = $this->content_dir .'index';
+		if($url) $file = $cdir . $url;
+		else $file = $cdir .'index';
 
-		if(is_dir($file)) $file = $this->content_dir . $url .'/index'. $ext;
+		if(is_dir($file)) $file = $cdir . $url .'/index'. $ext;
 		else $file .= $ext;
 		
 		return file_exists($file);
