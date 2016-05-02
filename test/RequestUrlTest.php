@@ -6,6 +6,40 @@ class DirectoryBasedRUTest extends DirectoryBasedTestBase {
   /**
    * 以下の状態で、カレントURL及びページインデックスの値を確認する
    *
+   * URL:なし
+   * カレントURL:ベースURL
+   * ページインデックス:1
+   */
+  public function testOnRU_URLIsEmpty() {
+    Closure::bind(function() {
+      $test = $this->getTest(true);
+      $url = "";
+      $test->onRequestUrl($url);
+      $this->assertEquals($this->pico->getBaseUrl(), $test->current_url);
+      $this->assertEquals(1, $test->pagination_index);
+    }, $this, 'DirectoryBased')->__invoke();
+  }
+
+  /**
+   * 以下の状態で、カレントURL及びページインデックスの値を確認する
+   *
+   * URL:なし
+   * カレントURL:ベースURL
+   * ページインデックス:2
+   */
+  public function testOnRU_URLIsRootAndIndex2() {
+    Closure::bind(function() {
+      $test = $this->getTest(true);
+      $url = "2";
+      $test->onRequestUrl($url);
+      $this->assertEquals($this->pico->getBaseUrl(), $test->current_url);
+      $this->assertEquals(2, $test->pagination_index);
+    }, $this, 'DirectoryBased')->__invoke();
+  }
+
+  /**
+   * 以下の状態で、カレントURL及びページインデックスの値を確認する
+   *
    * URL:ページネーションインデックスを含まない
    * カレントURL:そのまま
    * ページインデックス:1

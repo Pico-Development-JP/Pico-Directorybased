@@ -37,7 +37,7 @@ class DirectoryBased extends AbstractPicoPlugin {
 	  if($this->config['pagination']['enabled']) {
   		// ページネーション対応
       $m = array();
-    	if ( preg_match("|^(.*?)/(\d+)$|", $url, $m) ) {
+    	if ( preg_match("|^(.*?)/?(\d+)$|", $url, $m) ) {
   		  $this->pagination_index = $m[2];
   		  $url = $m[1];
   		} else if ( preg_match("|^(.*?)(index)?$|", $url, $m)){
@@ -46,7 +46,8 @@ class DirectoryBased extends AbstractPicoPlugin {
   		} else {
         throw new Exception("Invalid URL");
       }
-		  $this->current_url = $this->getBaseUrl() . "/" . $url;
+		  $this->current_url = $url == "" ? $this->getBaseUrl() :
+        $this->getBaseUrl() . $url;
     }
 	}
 
