@@ -36,14 +36,10 @@ class DirectoryBased extends AbstractPicoPlugin {
   {
 	  if($this->config['pagination']['enabled']) {
   		// ページネーション対応
-  		$checkurl = $url;
-  		while ( !$this->url_exists($checkurl) ) {
-  		  $checkurl = dirname($checkurl);
-  		}
-  		$differ = substr( $url, strlen($checkurl) + 1 );
-    	if ( $differ != "" && preg_match("/^\d+$/", $differ) ) {
-  		  $this->pagination_index = $differ;
-  		  $url = $checkurl;
+      $m = array();
+    	if ( preg_match("|^(.*?)/(\d+)$|", $url, $m) ) {
+  		  $this->pagination_index = $m[2];
+  		  $url = $m[1];
   		}else{
     		$this->pagination_index = 1;
   		}
@@ -167,26 +163,6 @@ class DirectoryBased extends AbstractPicoPlugin {
 	  $pathes['fullpath'] = $path;
 	  return $pathes;
 	}
-
-  /*
-   * URLが実在するURLかどうかを確認する(Picoソースよりコピー)
-   *
-   * @param $url URL
-   *
-   */
-  private function url_exists($url)
-  { 
-    $file = "";
-    $cdir = $this->getConfig('content_dir');
-    $ext = $this->getConfig('content_ext');
-		if($url) $file = $cdir . $url;
-		else $file = $cdir .'index';
-
-		if(is_dir($file)) $file = $cdir . $url .'/index'. $ext;
-		else $file .= $ext;
-		
-		return file_exists($file);
-  }
 	
 }
 
