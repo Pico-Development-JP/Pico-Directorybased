@@ -15,7 +15,7 @@ class DirectoryBasedRUTest extends DirectoryBasedTestBase {
       $test = $this->getTest(true);
       $url = "testurl/has/no/paginate/";
       $test->onRequestUrl($url);
-      $this->assertEquals($this->pico->getBaseUrl() . '/' . $url, $test->current_url);
+      $this->assertRegExp("|${url}$|", $test->current_url);
       $this->assertEquals(1, $test->pagination_index);
     }, $this, 'DirectoryBased')->__invoke();
   }
@@ -33,7 +33,7 @@ class DirectoryBasedRUTest extends DirectoryBasedTestBase {
       $testurl = "testurl/has/no/paginate";
       $url = "${testurl}/1";
       $test->onRequestUrl($url);
-      $this->assertEquals($this->pico->getBaseUrl() . '/' . $testurl, $test->current_url);
+      $this->assertRegExp("|${testurl}$|", $test->current_url);
       $this->assertEquals(1, $test->pagination_index);
     }, $this, 'DirectoryBased')->__invoke();
   }
@@ -51,7 +51,7 @@ class DirectoryBasedRUTest extends DirectoryBasedTestBase {
       $testurl = "testurl/has/no/paginate";
       $url = "${testurl}/10";
       $test->onRequestUrl($url);
-      $this->assertEquals($this->pico->getBaseUrl() . '/' . $testurl, $test->current_url);
+      $this->assertRegExp("|${testurl}$|", $test->current_url);
       $this->assertEquals(10, $test->pagination_index);
     }, $this, 'DirectoryBased')->__invoke();
   }
@@ -68,7 +68,7 @@ class DirectoryBasedRUTest extends DirectoryBasedTestBase {
       $test = $this->getTest(true);
       $url = "testurl/has/no/paginate/1/";
       $test->onRequestUrl($url);
-      $this->assertEquals($this->pico->getBaseUrl() . '/' . $url, $test->current_url);
+      $this->assertRegExp("|${url}$|", $test->current_url);
       $this->assertEquals(1, $test->pagination_index);
     }, $this, 'DirectoryBased')->__invoke();
   }
