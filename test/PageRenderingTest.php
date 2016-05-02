@@ -49,15 +49,9 @@ class DirectoryBasedPRTest extends DirectoryBasedTestBase {
       $currentPage = $page[0];
       $result = $test->scanFiles($page, $currentPage);
       $this->assertRegExp("|rootdir/testdir/file$|", $result[0]["url"], "1st file");
-      $this->assertRegExp("|rootdir/testdir/subdir/index$|", 
-        $result[1]["url"], "2nd file");
-      $this->assertFalse(isset($result[1]["subpages"]), "2nd dir has subpage");
-      $this->assertRegExp("|rootdir/testdir/subdir2/index$|", 
-        $result[2]["url"], "3rd file");
-      $this->assertFalse(isset($result[2]["subpages"]), "3rd dir has subpage");
       $this->assertRegExp("|rootdir/testdir/subfile$|", 
-        $result[3]["url"], "4th file");
-      $this->assertEquals(4, count($result), "CurDir Count");
+        $result[1]["url"], "2nd file");
+      $this->assertEquals(2, count($result), "CurDir Count");
     }, $this, 'DirectoryBased')->__invoke();
   }
   
