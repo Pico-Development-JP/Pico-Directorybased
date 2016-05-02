@@ -40,9 +40,12 @@ class DirectoryBased extends AbstractPicoPlugin {
     	if ( preg_match("|^(.*?)/(\d+)$|", $url, $m) ) {
   		  $this->pagination_index = $m[2];
   		  $url = $m[1];
-  		}else{
+  		} else if ( preg_match("|^(.*?)(index)?$|", $url, $m)){
     		$this->pagination_index = 1;
-  		}
+  		  $url = $m[1];
+  		} else {
+        throw new Exception("Invalid URL");
+      }
 		  $this->current_url = $this->getBaseUrl() . "/" . $url;
     }
 	}
