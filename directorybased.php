@@ -20,7 +20,7 @@ class DirectoryBased extends AbstractPicoPlugin {
 
   private $config;
   
-  private $pagination_index;
+  private $p_index;
   
   public function onConfigLoaded(array &$config)
   {
@@ -43,35 +43,58 @@ class DirectoryBased extends AbstractPicoPlugin {
 	  if($this->config['pagination']['enabled']) {
   		// ページネーション対応
       $m = array();
-    	if ( preg_match("|^(.*?)/(\d+)$|", $url, $m) ) {
+    	if ( preg_match("|^(.*?)/?(\d+)$|", $url, $m) ) {
   		  $this->pagination_index = $m[2];
   		  $url = $m[1];
-  		}else{
+  		} else if ( preg_match("|^(.*?)(index)?$|", $url, $m)){
     		$this->pagination_index = 1;
-  		}
-		  $this->current_url = $this->getBaseUrl() . "/" . $url;
+  		  $url = $m[1];
+  		} else {
+        throw new Exception("Invalid URL");
+      }
+		  $this->current_url = $url == "" ? $this->getBaseUrl() :
+        $this->getBaseUrl() . $url;
     }
 	}
 
   public function onPageRendering(Twig_Environment &$twig, array &$twigVariables, &$templateName)
   {
 		$pages = $twigVariables["pages"];
-		$curdir = array();
+		$current_page = $twigVariables["current_page"];
+    $curdir = $this->scanFiles($pages, $current_page);
+    $p = $this->scanPagination($curdir);
+    $twigVariables["dir_pages"] = $curdir;
+    if($p != null){
+      $twigVariables["dir_paginate"] = array(
+        "enabled" => $p["pagination_enabled"],
+        "hasprev" => $p["page_hasprev"],
+        "prevurl" => $p["page_prevurl"],
+        "hasnext" => $p["page_hasnext"],
+        "nexturl" => $p["page_nexturl"],
+        "pageindex" => $p["page_index"],
+        "pagemax" => $p["page_max"]
+      );
+    }
+    $twigVariables["pathinfo"] = $this->getpagepath($current_page);
+	}
+
+  /**
+   * ファイルを走査し、
+   * カレントディレクトリおよびサブディレクトリのファイル一覧を得る
+   *
+   * @param pages ページ一覧
+   * @param current_page 現在のページを示す配列
+   */
+  private function scanFiles(&$pages, &$current_page) {
+    $curdir = array();
 		$subdir = array();
 		$dirmap = array();
-		$page_index = 0;
-		$page_max = 0;
-		$page_hasprev = false;
-		$page_prevurl = "";
-		$page_hasnext = false;
-		$page_nexturl = "";
-		$pagination_enabled = false;
-		$current_page = $twigVariables["current_page"];
-
     $p_current = $this->getpagepath($current_page);
     foreach ($pages as $page) {
       $p_page = $this->getpagepath($page);
-      if($p_page["name"] == "" && $p_page["fullpath"] == $p_current["fullpath"]) continue;
+      if($p_page["name"] == "" && 
+        $p_page["fullpath"] == $p_current["fullpath"]) 
+        continue;
 
       $pcp = $p_current["path"];
       $ppp = $p_page["path"];
@@ -114,44 +137,52 @@ class DirectoryBased extends AbstractPicoPlugin {
       }
     }
 
-    // カレントディレクトリのページ判定
-    $oncurdir = $this->config['pagination']['oncurdir'];
-    if($this->config['pagination']['enabled'] && $oncurdir > 0 && count($curdir) > $oncurdir) {
-      // 変数計算
-  		$pagination_enabled = true;
-      $first = ($this->pagination_index - 1) * $oncurdir;
-      $last = $first + $oncurdir;
-      $page_hasprev = $this->pagination_index > 1;
-      if($page_hasprev) 
-        $page_prevurl = $this->current_url . "/" . ($this->pagination_index - 1);
-      $page_hasnext = count($curdir) > $last;
-      if($page_hasnext) 
-        $page_nexturl = $this->current_url . "/" . ($this->pagination_index + 1);
-      $page_index = $this->pagination_index;
-      $page_max = ceil(count($curdir) / $oncurdir);
-      // ディレクトリコンテンツ切り出し
-      $curdir = array_slice($curdir, $first, $oncurdir);
-    }
-    
     // カレントディレクトリとサブディレクトリの結びつけ
     foreach($dirmap as $k => $v){
       if(isset($subdir[$k])){
         $curdir[$v]["subpages"] = $subdir[$k];
       }
+    }  
+    return $curdir;  
+  }
+  
+  /**
+   * ページネーション処理を行う
+   * 
+   * @param curdir カレントディレクトリデータ配列(scanFiles()戻り値)
+   * @return ページネーション処理に関するデータを含む配列
+   */
+  public function scanPagination(&$curdir) {
+    // カレントディレクトリのページ判定
+    $result = null;
+    $oncurdir = $this->config['pagination']['oncurdir'];
+    if($this->config['pagination']['enabled'] && $oncurdir > 0 && count($curdir) > $oncurdir) {
+      $result = array();
+      // 変数計算
+      $result["page_index"] = $this->pagination_index;
+      $result["page_max"] = ceil(count($curdir) / $oncurdir);
+      if(0 < $result["page_index"] && $result["page_index"] <= $result["page_max"])
+      {
+        $result["pagination_enabled"] = true;
+        $first = ($this->pagination_index - 1) * $oncurdir;
+        $last = $first + $oncurdir;
+        $curl = $this->current_url;
+        if(substr($curl, -1) == "/") $curl = substr($curl, 0, -1);
+        $result["page_hasprev"] = $this->pagination_index > 1;
+        $result["page_prevurl"] = $result["page_hasprev"] ?
+          "${curl}/" . ($this->pagination_index - 1) : null;
+        $result["page_hasnext"] = count($curdir) > $last;
+        $result["page_nexturl"] = $result["page_hasnext"] ?
+          "${curl}/" . ($this->pagination_index + 1) : null;
+        // ディレクトリコンテンツ切り出し
+        $curdir = array_slice($curdir, $first, $oncurdir);
+      } else {
+        $curdir = array();
+      }
     }
-    $twigVariables["dir_pages"] = $curdir;
-    $twigVariables["dir_paginate"] = array(
-      "enabled" => $pagination_enabled,
-      "hasprev" => $page_hasprev,
-      "prevurl" => $page_prevurl,
-      "hasnext" => $page_hasnext,
-      "nexturl" => $page_nexturl,
-      "pageindex" => $page_index,
-      "pagemax" => $page_max
-    );
-    $twigVariables["pathinfo"] = $p_current["path"];
-	}
-
+    return $result;
+  }
+  
   /*
    * ページのパスを名前およびパス名に分割
    *
