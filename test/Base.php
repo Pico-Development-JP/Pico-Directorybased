@@ -13,6 +13,7 @@ class DirectoryBasedTestBase extends PHPUnit_Framework_TestCase {
    */
   public function getTest($paginate = false, $oncurdir = 5, $scansubdir = true) {
     $test = new DirectoryBased($this->pico);
+    $config = $this->pico->getConfig();
     $config['dir_based'] = array('pagination' => 
       array(
         'enabled' => $paginate, 

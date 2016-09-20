@@ -13,7 +13,11 @@ class DirectoryBased extends AbstractPicoPlugin {
   protected $enabled = false;
 
   private $current_url;
-  
+
+  private $content_dir;  
+
+  private $content_ext;
+
   private $config;
   
   private $pagination_index;
@@ -27,6 +31,8 @@ class DirectoryBased extends AbstractPicoPlugin {
         'scansubdir'=> true,
       ),
     );
+    $this->content_dir = $config['content_dir'];
+    $this->content_ext = $config['content_ext'];
     if( isset($config['dir_based']) ) {
       $this->config['pagination'] = $config['dir_based']['pagination'] + $this->config['pagination'];
     }
@@ -150,17 +156,26 @@ class DirectoryBased extends AbstractPicoPlugin {
    * ページのパスを名前およびパス名に分割
    *
    * @param $page ページデータ
+   * @param $testing テスト時のみtrue(ファイルの存在確認を行っているため)
    *
    */
-  private function getpagepath($page)
+  private function getpagepath($page, $testing = false)
   {
 	  $path = substr($page["url"], strlen($this->getBaseUrl()));
-	  $p = explode("/", $path);
-	  $pathes = array();
-	  $pathes['name'] = array_pop($p); // 最後の項目はファイル名
+    if($testing || file_exists($this->content_dir . $path . $this->content_ext)){
+      // これはファイル
+    }else{
+      // ディレクトリっぽい(Ver1.1で区別がつかなくなったため)
+      if($path && $path[strlen($path) - 1] != "/") $path .= "/";
+      $path .= "index";
+    }
+    $p = explode("/", $path);
+    $pathes = array();
+    $pathes['name'] = array_pop($p); // 最後の項目はファイル名
     if($pathes['name'] == 'index') $pathes['name'] = "";
-	  $pathes['path'] = $p;
-	  $pathes['fullpath'] = $path;
+    $pathes['path'] = $p;
+    $pathes['fullpath'] = $path;
+
 	  return $pathes;
 	}
 	

@@ -12,7 +12,7 @@ class DirectoryBasedGPPTest extends DirectoryBasedTestBase {
     Closure::bind(function() {
       $test = $this->getTest(true);
       $page = $this->getTestPage("/file/path/testing");
-      $result = $test->getpagepath($page);
+      $result = $test->getpagepath($page, true);
       $this->assertEquals("testing", $result["name"], "name");
       $this->assertEquals("/file/path", implode("/", $result["path"]), "path");
       $this->assertEquals("/file/path/testing", $result["fullpath"], "fullpath");
@@ -28,7 +28,7 @@ class DirectoryBasedGPPTest extends DirectoryBasedTestBase {
     Closure::bind(function() {
       $test = $this->getTest(true);
       $page = $this->getTestPage("/file/path/testing/");
-      $result = $test->getpagepath($page);
+      $result = $test->getpagepath($page, true);
       $this->assertEquals("", $result["name"], "name");
       $this->assertEquals("/file/path/testing", implode("/", $result["path"]), "path");
       $this->assertEquals("/file/path/testing/", $result["fullpath"], "fullpath");
@@ -44,7 +44,7 @@ class DirectoryBasedGPPTest extends DirectoryBasedTestBase {
     Closure::bind(function() {
       $test = $this->getTest(true);
       $page = $this->getTestPage("/file/path/testing/index");
-      $result = $test->getpagepath($page);
+      $result = $test->getpagepath($page, true);
       $this->assertEquals("", $result["name"], "name");
       $this->assertEquals("/file/path/testing", implode("/", $result["path"]), "path");
       $this->assertEquals("/file/path/testing/index", $result["fullpath"], "fullpath");
