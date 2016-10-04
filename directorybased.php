@@ -118,7 +118,8 @@ class DirectoryBased extends AbstractPicoPlugin {
               // サブディレクトリ
               if($p_page["name"] == ""){
                 // サブディレクトリのindexファイルであれば、カレントディレクトリリストに追加
-                  $dirmap[$d_name] = count($curdir);
+                $dirmap[$d_name] = count($curdir);
+                $page["url"] .= '/';
                 array_push($curdir, $page);
               }else{
                 // そうでなければ、サブディレクトリとして追加
